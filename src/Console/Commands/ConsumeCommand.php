@@ -39,6 +39,9 @@ class ConsumeCommand extends Command
                             {--deadLetterExchangeName= : The dead letter exchange NAME. Defaults to deadLetterQueueName}
                             {--deadLetterExchangeType=fanout : The dead letter exchange TYPE. Supported exchanges: fanout, direct, topic. Defaults to fanout}
                             {--deadLetterRoutingKey= : The dead letter ROUTING KEY}
+                            {--deadLetterReturnExchange= : The dead letter ROUTING KEY}
+                            {--deadLetterReturnRoutingKey= : The dead letter ROUTING KEY}
+                            {--deadLetterMessageTTL= : If set, specifies how long, in milliseconds, before a message is declared dead letter}
                             {--messageTTL= : If set, specifies how long, in milliseconds, before a message is declared dead letter}';
 
     /**
@@ -68,6 +71,9 @@ class ConsumeCommand extends Command
         $deadLetterExchangeName = ($dlExchangeName = $this->option('deadLetterExchangeName')) ? $dlExchangeName : (($dlQueueName = $this->option('deadLetterQueueName')) ? $dlQueueName : null);
         $deadLetterExchangeType = $this->option('deadLetterExchangeType');
         $deadLetterRoutingKey = $this->option('deadLetterRoutingKey');
+        $deadLetterReturnExchange = $this->option('deadLetterReturnExchange');
+        $deadLetterReturnRoutingKey = $this->option('deadLetterReturnRoutingKey');
+        $deadLetterMessageTTL = $this->option('deadLetterMessageTTL');
         $messageTTL = ($ttl = $this->option('messageTTL')) ? (int) $ttl : null;
 
         require app_path().'/Messaging/queues.php';
@@ -88,7 +94,7 @@ class ConsumeCommand extends Command
                     // If configured as options and deadLetterExchangeName is not specified, default to deadLetterQueueName.
                     $deadLetterExchangeName = isset($deadLetterExchangeName) ? $deadLetterExchangeName : $deadLetterQueueName;
 
-                    $bowlerConsumer->configureDeadLettering($deadLetterQueueName, $deadLetterExchangeName, $deadLetterExchangeType, $deadLetterRoutingKey, $messageTTL);
+                    $bowlerConsumer->configureDeadLettering($deadLetterQueueName, $deadLetterExchangeName, $deadLetterExchangeType, $deadLetterRoutingKey, $messageTTL, $deadLetterReturnExchange, $deadLetterReturnRoutingKey, $deadLetterMessageTTL);
                 }
                 $bowlerConsumer->listenToQueue($handler->className, app(BowlerExceptionHandler::class));
             }

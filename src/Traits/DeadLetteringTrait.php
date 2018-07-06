@@ -16,16 +16,20 @@ trait DeadLetteringTrait
      * @param string $deadLetterExchangeName
      * @param string $deadLetterExchangeType
      * @param string $deadLetterRoutingKey
+     * @param string $deadLetterReturnExchange
+     * @param string $deadLetterReturnRoutingKey
+     * @param string $deadLetterMessageTTL
      * @param int    $messageTTL
      */
-    public function configureDeadLettering($deadLetterQueueName, $deadLetterExchangeName, $deadLetterExchangeType = 'fanout', $deadLetterRoutingKey = null, $messageTTL = null)
+    public function configureDeadLettering($deadLetterQueueName, $deadLetterExchangeName, $deadLetterExchangeType = 'fanout', $deadLetterRoutingKey = null, $messageTTL = null, $deadLetterReturnExchange ='', $deadLetterReturnRoutingKey = '', $deadLetterMessageTTL = '')
     {
         $channel = $this->connection->getChannel();
 
         try {
             $channel->exchange_declare($deadLetterExchangeName, $deadLetterExchangeType, $this->passive, $this->durable, $this->autoDelete);
+            $arguments = $this->compileArguments($deadLetterReturnExchange, $deadLetterReturnRoutingKey, $deadLetterMessageTTL);
 
-            $channel->queue_declare($deadLetterQueueName, $this->passive, $this->durable, false, $this->autoDelete);
+            $channel->queue_declare($deadLetterQueueName, $this->passive, $this->durable, false, $this->autoDelete, false, $this->arguments);
         } catch (\Exception $e) {
             app(BowlerExceptionHandler::class)->handleServerException($e, compact($deadLetterQueueName, $deadLetterExchangeName, $deadLetterExchangeType, $deadLetterRoutingKey, $messageTTL),
                             $this->arguments);
@@ -50,11 +54,15 @@ trait DeadLetteringTrait
 
         if ($deadLetterRoutingKey) {
             $this->arguments['x-dead-letter-routing-key'] = ['S', $deadLetterRoutingKey];
+        } elseif(isset($this->arguments['x-dead-letter-routing-key'])) {
+            unset($this->arguments['x-dead-letter-routing-key']);
         }
 
         if ($messageTTL) {
             // 'I', Rabbitmq data type for long int
             $this->arguments['x-message-ttl'] = ['I', $messageTTL];
+        } elseif(isset($this->arguments['x-message-ttl'])) {
+            unset($this->arguments['x-message-ttl']);
         }
     }
 }
