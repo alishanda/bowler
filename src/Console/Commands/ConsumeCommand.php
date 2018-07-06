@@ -39,9 +39,9 @@ class ConsumeCommand extends Command
                             {--deadLetterExchangeName= : The dead letter exchange NAME. Defaults to deadLetterQueueName}
                             {--deadLetterExchangeType=fanout : The dead letter exchange TYPE. Supported exchanges: fanout, direct, topic. Defaults to fanout}
                             {--deadLetterRoutingKey= : The dead letter ROUTING KEY}
-                            {--deadLetterReturnExchange= : The dead letter ROUTING KEY}
-                            {--deadLetterReturnRoutingKey= : The dead letter ROUTING KEY}
-                            {--deadLetterMessageTTL= : If set, specifies how long, in milliseconds, before a message is declared dead letter}
+                            {--deadLetterReturnExchange= : new EXCHANGER. If you need to replace messages from dead queue to somewhere}
+                            {--deadLetterReturnRoutingKey= : ROUTING KEY of new queue if you need to replace messages from dead queue to somewhere.}
+                            {--deadLetterMessageTTL= : If set, specifies how long, in milliseconds, before a message will go away from dead letter}
                             {--messageTTL= : If set, specifies how long, in milliseconds, before a message is declared dead letter}';
 
     /**
